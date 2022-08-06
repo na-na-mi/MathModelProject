@@ -68,14 +68,10 @@ class OurNeuralNetwork:
                 sum_1 = self.w11 * x[0] + self.w12 * x[1] + self.b1
                 d_h1_d_w11 = x[0] * deriv_sigmoid(sum_1)
                 d_h1_d_w12 = x[1] * deriv_sigmoid(sum_1)
-                d_h1_d_w13 = x[2] * deriv_sigmoid(sum_1)
-                d_h1_d_w14 = x[3] * deriv_sigmoid(sum_1)
                 d_h1_d_b1 = deriv_sigmoid(sum_1)
                 sum_2 = self.w21 * x[0] + self.w22 * x[1] + self.b2
                 d_h1_d_w21 = x[0] * deriv_sigmoid(sum_2)
                 d_h1_d_w22 = x[1] * deriv_sigmoid(sum_2)
-                d_h1_d_w23 = x[2] * deriv_sigmoid(sum_2)
-                d_h1_d_w24 = x[3] * deriv_sigmoid(sum_2)
                 d_h1_d_b2 = deriv_sigmoid(sum_2)
 
                 # 梯度下降法
@@ -94,7 +90,7 @@ class OurNeuralNetwork:
             if epoch % 10 == 0:
                 y_preds = np.apply_along_axis(self.feedforward, 1, data)
                 loss = mse_loss(all_y_trues, y_preds)
-                print("Epoch %d loss: %.3f" % (epoch, loss))
+                print("模型训练次数：%d   损失率: %.3f" % (epoch, loss))
                 self.loss[self.sum] = loss
                 self.sum = self.sum + 1
 
@@ -107,44 +103,37 @@ data = pd.read_excel(r'C:\Users\青山七海\PycharmProjects\MathModelProject\Fi
                      usecols="A,B,C,D,E")
 # DataFrame转化为array
 DataArray = data.values
-Y = DataArray[:, 0]
-X = DataArray[:, 1:5]
-X = np.array(X)  # 转化为array,自变量
-Y = np.array(Y)  # 转化为array，因变量房价
+A = DataArray[:, 2:5]
+B = DataArray[:, 0:2]
+# C = DataArray[:, 1:2]
+B = np.array(B)  # 转化为array,自变量
+A = np.array(A)  # 转化为array，因变量
+# C = np.array(A)
 # 处理数据
-data = np.array(X)
+data = np.array(B)
 data_mean = np.sum(data, axis=0) / np.size(data, 0)
 data = (data - data_mean) / np.max(data)
-all_y_trues = np.array(Y)
+all_y_trues = np.array(A)
 all_y_trues_mean = np.sum(all_y_trues) / np.size(all_y_trues)  # 平均值
 all_y_trues = (all_y_trues - all_y_trues_mean) / np.max(all_y_trues)  # 所有y的标准化数值
 # 训练数据
 network = OurNeuralNetwork()
 network.train(data, all_y_trues)
-# 输出神经网络参数
-print("w11-->%.3f" % network.w11)
-print("w12-->%.3f" % network.w12)
-
-print("w21-->%.3f" % network.w21)
-print("w22-->%.3f" % network.w22)
-
-print("w1-->%.3f" % network.w1)
-print("w2-->%.3f" % network.w2)
-print("b1-->%.3f" % network.b1)
-print("b2-->%.3f" % network.b2)
-print("b3-->%.3f" % network.b3)
 # 标题显示中文
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 # 测试数据
-testData = np.array([40, 800])
-testPrice = network.feedforward(testData)
+testData = np.array([23, 850])
+
+print(network.feedforward(testData))
+
 # 损失函数曲线图
 plt.plot(np.arange(100), network.loss)
 plt.show()
 # 真实值与预测值对比
-# y_preds = np.apply_along_axis(network.feedforward, 1, data)
-# plt.plot(np.arange(100), all_y_trues, "r^")
-# plt.plot(np.arange(100), y_preds, "bs")
-# plt.title("红色为真实值，蓝色为预测值")
-# plt.show()
+y_preds = np.apply_along_axis(network.feedforward, 1, data)
+
+plt.plot(np.arange(82), all_y_trues, "r^")
+plt.plot(np.arange(82), y_preds, "bs")
+plt.title("红色为真实值，蓝色为预测值")
+plt.show()
